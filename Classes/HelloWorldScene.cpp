@@ -27,7 +27,6 @@ bool HelloWorld::init()
         return false;
     }
 
-    //unsued so far :)
     CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
     CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 
