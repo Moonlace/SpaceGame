@@ -70,6 +70,15 @@ bool HelloWorld::init()
     
     this->setAccelerometerEnabled(true);
     
+    #define KNUMASTEROIDS 15
+    _asteroids = new CCArray();
+    for(int i = 0; i < KNUMASTEROIDS; ++i) {
+        CCSprite *asteroid = CCSprite::createWithSpriteFrameName("asteroid.png");
+        asteroid->setVisible(false);
+        _batchNode->addChild(asteroid);
+        _asteroids->addObject(asteroid);
+    }
+    
     return true;
 }
 
@@ -124,6 +133,28 @@ void HelloWorld::update(float dt) {
     float newY = _ship->getPosition().y + diff;
     newY = MIN(MAX(newY, minY), maxY);
     _ship->setPosition(ccp(_ship->getPosition().x, newY));
+    
+    float curTimeMillis = getTimeTick();
+    if (curTimeMillis > _nextAsteroidSpawn) {
+        
+        float randMillisecs = randomValueBetween(0.20,1.0) * 1000;
+        _nextAsteroidSpawn = randMillisecs + curTimeMillis;
+        
+        float randY = randomValueBetween(0.0,winSize.height);
+        float randDuration = randomValueBetween(2.0,10.0);
+        
+        CCSprite *asteroid = (CCSprite *)_asteroids->objectAtIndex(_nextAsteroid);
+        _nextAsteroid++;
+        
+        if (_nextAsteroid >= _asteroids->count())
+            _nextAsteroid = 0;
+        
+        asteroid->stopAllActions();
+        asteroid->setPosition( ccp(winSize.width+asteroid->getContentSize().width/2, randY));
+        asteroid->setVisible(true);
+        asteroid->runAction(CCSequence::create(CCMoveBy::create(randDuration, ccp(-winSize.width-asteroid->getContentSize().width, 0)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::setInvisible)), NULL // DO NOT FORGET TO TERMINATE WITH NULL (unexpected in C++)
+                                               ));        
+    }
 }
 
 void HelloWorld::didAccelerate(CCAcceleration* pAccelerationValue) {
@@ -143,4 +174,19 @@ void HelloWorld::didAccelerate(CCAcceleration* pAccelerationValue) {
     float accelDiff = accelX - KRESTACCELX;
     float accelFraction = accelDiff / KMAXDIFFX;
     _shipPointsPerSecY = KSHIPMAXPOINTSPERSEC * accelFraction;
+}
+
+float HelloWorld::randomValueBetween(float low, float high) {
+    return (((float) arc4random() / 0xFFFFFFFFu) * (high - low)) + low;
+}
+
+float HelloWorld::getTimeTick() {
+    timeval time;
+    gettimeofday(&time, NULL);
+    unsigned long millisecs = (time.tv_sec * 1000) + (time.tv_usec/1000);
+    return (float) millisecs;
+}
+
+void HelloWorld::setInvisible(CCNode * node) {
+    node->setVisible(false);
 }

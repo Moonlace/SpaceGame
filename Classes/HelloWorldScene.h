@@ -20,6 +20,12 @@ private:
     CCSprite *_spacialanomaly;
     CCSprite *_spacialanomaly2;
     
+    // asteroids
+    CCArray* _asteroids;
+    int _nextAsteroid;
+    float _nextAsteroidSpawn;
+    
+    // movement of the ship variable
     float _shipPointsPerSecY;
     
     // scheduled Update
@@ -30,6 +36,12 @@ public:
     virtual bool init();  
     
     virtual void didAccelerate(CCAcceleration* pAccelerationValue);
+    
+    float randomValueBetween(float low, float high);
+    
+    void setInvisible(CCNode * node);
+    
+    float getTimeTick();
     
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
     static CCScene* scene();
